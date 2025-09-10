@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_USER = credentials('dockerhub')
+    }
+    stages {
+        stage('Build Dev') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                sh 'docker build -t $DOCKER_USER_USR/dev:latest .'
+                sh 'echo $DOCKER_USER_PSW | docker login -u $DOCKER_USER_USR --password-stdin'
+                sh 'docker push $DOCKER_USER_USR/dev:latest'
+            }
+        }
+        stage('Build Prod') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh 'docker build -t $DOCKER_USER_USR/prod:latest .'
+                sh 'echo $DOCKER_USER_PSW | docker login -u $DOCKER_USER_USR --password-stdin'
+                sh 'docker push $DOCKER_USER_USR/prod:latest'
+            }
+        }
+    }
+}
